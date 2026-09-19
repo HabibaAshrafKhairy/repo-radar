@@ -4,7 +4,7 @@ A dashboard for searching GitHub repositories, tracking favorites, and monitorin
 
 ## Live demo
 
-- App: _add your Vercel URL here after deploying_
+- App: https://repo-radar-khairy.vercel.app
 - Repo: https://github.com/HabibaAshrafKhairy/repo-radar
 
 ## Features
