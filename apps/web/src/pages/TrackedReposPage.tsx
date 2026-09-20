@@ -32,15 +32,11 @@ export function TrackedReposPage() {
   const handleUntrack = useCallback((id: number) => dispatch(untrack(id)), [dispatch]);
   const handleRefreshAll = () => dispatch(invalidateRepoStats(trackedRepos.map((repo) => repo.id)));
 
-  function handleBarClick(datum: { id: string | number }) {
-    document.getElementById(`tracked-repo-${datum.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
   const chartData = useMemo(
     () =>
       trackedRepos
         .filter((repo) => statsById[repo.id])
-        .map((repo) => ({ id: repo.id, label: repo.fullName, value: statsById[repo.id]!.stargazersCount })),
+        .map((repo) => ({ label: repo.fullName, value: statsById[repo.id]!.stargazersCount })),
     [trackedRepos, statsById],
   );
 
@@ -65,13 +61,12 @@ export function TrackedReposPage() {
 
       <Stack spacing={0.5}>
         <Typography variant="subtitle2" color="text.secondary">
-          Stars per tracked repository (hover for the exact count, click a bar to view details
+          Stars per tracked repository (hover for the exact count
           {chartData.length > CHART_MAX_ITEMS ? `, top ${CHART_MAX_ITEMS} shown` : ""})
         </Typography>
         <StarsBarChart
           data={chartData}
           maxItems={CHART_MAX_ITEMS}
-          onBarClick={handleBarClick}
           emptyFallback={<Typography color="text.secondary">Loading stats…</Typography>}
         />
       </Stack>

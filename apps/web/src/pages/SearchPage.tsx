@@ -19,7 +19,7 @@ import { EmptyState, RepoResultCard, SearchInput } from "@repo-radar/ui";
 /** The "Search" tab: debounced GitHub search + track/untrack toggle on each result. */
 export function SearchPage() {
   const [query, setQuery] = useState("");
-  const { results, isLoading, isFetching, isError, error, isPending, hasMore, loadMore } = useGitHubSearch(query);
+  const { results, isFetching, isError, error, isPending, hasMore, loadMore } = useGitHubSearch(query);
 
   const dispatch = useAppDispatch();
   const trackedRepos = useAppSelector(selectTrackedRepos);
@@ -39,7 +39,7 @@ export function SearchPage() {
     <Stack spacing={2}>
       <SearchInput value={query} onChange={setQuery} />
 
-      {(isLoading || isPending) && <CircularProgress size={28} sx={{ alignSelf: "center" }} />}
+      {isPending && <CircularProgress size={28} sx={{ alignSelf: "center" }} />}
 
       {isError && <Alert severity="error">{error}</Alert>}
 
@@ -51,7 +51,7 @@ export function SearchPage() {
         />
       )}
 
-      {!isLoading && !isPending && trimmedQuery.length > 0 && results.length === 0 && (
+      {!isPending && trimmedQuery.length > 0 && results.length === 0 && (
         <EmptyState
           icon={<SearchOffRoundedIcon sx={{ fontSize: 48 }} />}
           title="No repositories found"

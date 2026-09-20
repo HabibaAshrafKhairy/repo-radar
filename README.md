@@ -13,8 +13,8 @@ A dashboard for searching GitHub repositories, tracking favorites, and monitorin
 - Track / untrack repositories, persisted to `localStorage`
 - Tracked Repos view showing stars, open issues, and last commit date per repo
 - Refresh an individual repo's stats, or all of them at once
-- Independent loading/error state per repo (one repo's rate-limit error doesn't affect another's card)
-- Bar chart of stars per tracked repository (capped to the top 10 by star count for readability), click a bar to jump to that repo's card
+- Independent loading/error state per repo
+- Bar chart of stars per tracked repository (capped to the top 10 by star count for readability)
 - Top-level error boundary so a render error doesn't blank the whole app
 
 ## Tech stack

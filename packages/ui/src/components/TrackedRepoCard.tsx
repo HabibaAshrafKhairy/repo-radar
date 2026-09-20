@@ -39,7 +39,7 @@ export function TrackedRepoCard({ repo, onUntrack, onStatsChange }: TrackedRepoC
   }, [repo.id, stats, onStatsChange]);
 
   return (
-    <Card id={`tracked-repo-${repo.id}`}>
+    <Card>
       <CardContent>
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
           <Stack spacing={0.5} minWidth={0}>
