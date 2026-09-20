@@ -19,6 +19,7 @@ A dashboard for searching GitHub repositories, tracking favorites, and monitorin
 - Real routes (`/search`, `/tracked`) via React Router — each view is a bookmarkable URL with working browser back/forward, not just in-memory tab state
 - Light/dark mode toggle, persisted to `localStorage`
 - Top-level error boundary so a render error doesn't blank the whole app
+- The layout is fully responsive, adapting to all screen sizes
 
 ## Tech stack
 
