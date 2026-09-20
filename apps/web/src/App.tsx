@@ -36,7 +36,15 @@ function NavTabs() {
   const currentTab = location.pathname.startsWith("/tracked") ? "/tracked" : "/search";
 
   return (
-    <Tabs value={currentTab} onChange={(_event, next: string) => navigate(next)} textColor="primary" indicatorColor="primary">
+    <Tabs
+      value={currentTab}
+      onChange={(_event, next: string) => navigate(next)}
+      textColor="primary"
+      indicatorColor="primary"
+      variant="scrollable"
+      scrollButtons="auto"
+      allowScrollButtonsMobile
+    >
       <Tab value="/search" label="Search" sx={{ fontWeight: 600 }} />
       <Tab value="/tracked" label="Tracked Repos" sx={{ fontWeight: 600 }} />
     </Tabs>

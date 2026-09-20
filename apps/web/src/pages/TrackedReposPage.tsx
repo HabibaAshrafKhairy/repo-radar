@@ -6,6 +6,7 @@ import SearchOffRoundedIcon from "@mui/icons-material/SearchOffRounded";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
@@ -75,7 +76,7 @@ export function TrackedReposPage() {
 
   const filter = searchParams.get("filter") ?? "";
   const sort = (searchParams.get("sort") as SortKey | null) ?? "added";
-  const order = (searchParams.get("order") as SortOrder | null) ?? "asc";
+  const order = (searchParams.get("order") as SortOrder | null) ?? "desc";
 
   function updateParam(key: string, value: string) {
     setSearchParams(
@@ -129,7 +130,12 @@ export function TrackedReposPage() {
 
   return (
     <Stack spacing={3}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        justifyContent="space-between"
+        alignItems={{ xs: "stretch", sm: "center" }}
+        spacing={1.5}
+      >
         <Typography variant="h6">Tracked repositories ({trackedRepos.length})</Typography>
         <Button variant="outlined" startIcon={<RefreshIcon />} onClick={handleRefreshAll}>
           Refresh all
@@ -144,41 +150,48 @@ export function TrackedReposPage() {
         <StarsBarChart
           data={chartData}
           maxItems={CHART_MAX_ITEMS}
+          color="#6366F1"
           emptyFallback={<Typography color="text.secondary">Loading stats…</Typography>}
         />
       </Stack>
 
-      <Stack direction="row" spacing={1.5} flexWrap="wrap">
+      <Paper
+        variant="outlined"
+        sx={{ p: 1.5, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}
+      >
         <TextField
           size="small"
           label="Filter by name"
           value={filter}
           onChange={(event) => updateParam("filter", event.target.value)}
-          sx={{ minWidth: 220 }}
+          sx={{ minWidth: { xs: "100%", sm: 220 }, flex: { sm: "1 1 220px" } }}
         />
-        <TextField
-          size="small"
-          select
-          label="Sort by"
-          value={sort}
-          onChange={(event) => updateParam("sort", event.target.value)}
-          sx={{ minWidth: 160 }}
-        >
-          {SORT_OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Tooltip title={order === "asc" ? "Ascending" : "Descending"}>
-          <IconButton
-            onClick={() => updateParam("order", order === "asc" ? "desc" : "asc")}
-            aria-label="Toggle sort direction"
+        <Stack direction="row" spacing={1} sx={{ width: { xs: "100%", sm: "auto" } }}>
+          <TextField
+            size="small"
+            select
+            label="Sort by"
+            value={sort}
+            onChange={(event) => updateParam("sort", event.target.value)}
+            sx={{ minWidth: 170, flex: { xs: 1, sm: "initial" } }}
           >
-            {order === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-          </IconButton>
-        </Tooltip>
-      </Stack>
+            {SORT_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Tooltip title={order === "asc" ? "Ascending" : "Descending"}>
+            <IconButton
+              onClick={() => updateParam("order", order === "asc" ? "desc" : "asc")}
+              aria-label="Toggle sort direction"
+              sx={{ border: 1, borderColor: "divider", borderRadius: 1, width: 40, height: 40, flexShrink: 0 }}
+            >
+              {order === "asc" ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Paper>
 
       {visibleRepos.length === 0 ? (
         <EmptyState

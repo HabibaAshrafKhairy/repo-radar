@@ -1,17 +1,21 @@
-import { createTheme, type PaletteMode, type Theme } from "@mui/material/styles";
+import { alpha, createTheme, responsiveFontSizes, type PaletteMode, type Theme } from "@mui/material/styles";
 
 /** One shared theme definition, parameterized by light/dark mode so both stay visually consistent. */
 export function getTheme(mode: PaletteMode): Theme {
   const isLight = mode === "light";
 
-  return createTheme({
+  const theme = createTheme({
     palette: {
       mode,
-      primary: { main: "#1f6feb" },
-      secondary: { main: "#f2b90c" },
-      background: isLight ? { default: "#f4f6fb" } : { default: "#0d1117", paper: "#161b22" },
+      // A lighter tint in dark mode (not the same hex as light mode) is what keeps this
+      // legible against a dark background — reusing the light-mode shade is what made links
+      // hard to read in dark mode before.
+      primary: { main: isLight ? "#2563eb" : "#60a5fa" },
+      secondary: { main: isLight ? "#059669" : "#34d399" },
+      background: isLight ? { default: "#f8fafc", paper: "#ffffff" } : { default: "#0b0f19", paper: "#141a24" },
+      divider: isLight ? "rgba(15, 23, 42, 0.1)" : "rgba(255, 255, 255, 0.12)",
     },
-    shape: { borderRadius: 12 },
+    shape: { borderRadius: 10 },
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       button: { textTransform: "none", fontWeight: 600 },
@@ -23,8 +27,10 @@ export function getTheme(mode: PaletteMode): Theme {
           root: {
             border: "1px solid",
             borderColor: isLight ? "rgba(15, 23, 42, 0.08)" : "rgba(255, 255, 255, 0.12)",
-            transition: "box-shadow 0.2s ease",
-            "&:hover": { boxShadow: isLight ? "0 8px 24px rgba(15, 23, 42, 0.08)" : "0 8px 24px rgba(0, 0, 0, 0.5)" },
+            transition: "box-shadow 0.2s ease, transform 0.2s ease",
+            "&:hover": {
+              boxShadow: isLight ? "0 8px 24px rgba(15, 23, 42, 0.08)" : "0 8px 24px rgba(0, 0, 0, 0.5)",
+            },
           },
         },
       },
@@ -33,8 +39,33 @@ export function getTheme(mode: PaletteMode): Theme {
           root: { boxShadow: "none" },
         },
       },
+      MuiLink: {
+        defaultProps: { underline: "hover" },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: { fontWeight: 500 },
+          filled: ({ theme: t }) => ({
+            backgroundColor: alpha(t.palette.text.primary, isLight ? 0.05 : 0.08),
+          }),
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: { borderRadius: 10 },
+        },
+      },
+      // MUI Stack defaults to margin-based spacing, which only works between siblings on a single
+      // line — once flexWrap kicks in (e.g. a chip row wrapping on mobile), the gap between wrapped
+      // rows comes out wrong/inconsistent. Real CSS `gap` (via useFlexGap) works correctly in both
+      // cases, so this is set globally rather than patched per-component.
+      MuiStack: {
+        defaultProps: { useFlexGap: true },
+      },
     },
   });
+
+  return responsiveFontSizes(theme);
 }
 
 /** Default (light) theme — used anywhere that doesn't need mode switching. */

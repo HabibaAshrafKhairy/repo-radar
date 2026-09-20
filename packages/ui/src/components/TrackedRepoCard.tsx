@@ -9,10 +9,10 @@ import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
 import { useEffect } from "react";
 import { useGetRepoStatsQuery, type RepoStats, type TrackedRepo } from "@repo-radar/core";
 
@@ -40,12 +40,25 @@ export function TrackedRepoCard({ repo, onUntrack, onStatsChange }: TrackedRepoC
 
   return (
     <Card>
-      <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 }, "&:last-child": { pb: { xs: 1.5, sm: 2 } } }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent={{ xs: "flex-start", sm: "space-between" }}
+          alignItems={{ xs: "stretch", sm: "flex-start" }}
+          spacing={{ xs: 1, sm: 1.5 }}
+        >
           <Stack spacing={0.5} minWidth={0}>
-            <Typography variant="subtitle1" component="a" href={repo.htmlUrl} target="_blank" rel="noreferrer">
+            <Link
+              href={repo.htmlUrl}
+              target="_blank"
+              rel="noreferrer"
+              variant="subtitle1"
+              color="text.primary"
+              fontWeight={600}
+              sx={{ "&:hover": { color: "primary.main" } }}
+            >
               {repo.fullName}
-            </Typography>
+            </Link>
             {isLoading && <Skeleton width={180} />}
             {isError && (
               <Alert
