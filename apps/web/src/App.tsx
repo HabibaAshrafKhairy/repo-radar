@@ -9,19 +9,18 @@ import Tooltip from "@mui/material/Tooltip";
 import { ThemeProvider, type PaletteMode } from "@mui/material/styles";
 import { Suspense, lazy, useMemo, useState } from "react";
 import { Provider } from "react-redux";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { store } from "@repo-radar/core";
 import { AppShell, getTheme } from "@repo-radar/ui";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { SearchPage } from "./pages/SearchPage";
 
 // Lazy-loaded: this page pulls in @repo-radar/charts (MUI X Charts), the heaviest dependency in
-// the app, so keeping it out of the initial bundle means the Search tab — what most sessions
+// the app, so keeping it out of the initial bundle means the Search route — what most sessions
 // start on — loads without paying for a chart library it doesn't use yet.
 const TrackedReposPage = lazy(() =>
   import("./pages/TrackedReposPage").then((module) => ({ default: module.TrackedReposPage })),
 );
-
-type View = "search" | "tracked";
 
 const THEME_MODE_STORAGE_KEY = "repo-radar-theme-mode";
 
@@ -30,9 +29,21 @@ function loadStoredThemeMode(): PaletteMode {
   return localStorage.getItem(THEME_MODE_STORAGE_KEY) === "dark" ? "dark" : "light";
 }
 
-function AppContent({ mode, onToggleMode }: { mode: PaletteMode; onToggleMode: () => void }) {
-  const [view, setView] = useState<View>("search");
+/** Tabs backed by real routes (rather than local state), so each view is a shareable, bookmarkable URL. */
+function NavTabs() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentTab = location.pathname.startsWith("/tracked") ? "/tracked" : "/search";
 
+  return (
+    <Tabs value={currentTab} onChange={(_event, next: string) => navigate(next)} textColor="primary" indicatorColor="primary">
+      <Tab value="/search" label="Search" sx={{ fontWeight: 600 }} />
+      <Tab value="/tracked" label="Tracked Repos" sx={{ fontWeight: 600 }} />
+    </Tabs>
+  );
+}
+
+function AppContent({ mode, onToggleMode }: { mode: PaletteMode; onToggleMode: () => void }) {
   return (
     <AppShell
       title="Repo Radar"
@@ -44,25 +55,26 @@ function AppContent({ mode, onToggleMode }: { mode: PaletteMode; onToggleMode: (
           </IconButton>
         </Tooltip>
       }
-      tabs={
-        <Tabs value={view} onChange={(_event, next: View) => setView(next)} textColor="primary" indicatorColor="primary">
-          <Tab value="search" label="Search" sx={{ fontWeight: 600 }} />
-          <Tab value="tracked" label="Tracked Repos" sx={{ fontWeight: 600 }} />
-        </Tabs>
-      }
+      tabs={<NavTabs />}
     >
-      {view === "search" ? (
-        <SearchPage />
-      ) : (
-        <Suspense fallback={<CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />}>
-          <TrackedReposPage />
-        </Suspense>
-      )}
+      <Routes>
+        <Route path="/" element={<Navigate to="/search" replace />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route
+          path="/tracked"
+          element={
+            <Suspense fallback={<CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />}>
+              <TrackedReposPage />
+            </Suspense>
+          }
+        />
+        <Route path="*" element={<Navigate to="/search" replace />} />
+      </Routes>
     </AppShell>
   );
 }
 
-/** Top-level providers: Redux store, then the shared MUI theme, then a render-error safety net. */
+/** Top-level providers: Redux store, router, the shared MUI theme, then a render-error safety net. */
 export function App() {
   const [mode, setMode] = useState<PaletteMode>(loadStoredThemeMode);
   const theme = useMemo(() => getTheme(mode), [mode]);
@@ -80,9 +92,12 @@ export function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ErrorBoundary>
-          <AppContent mode={mode} onToggleMode={handleToggleMode} />
+          <BrowserRouter>
+            <AppContent mode={mode} onToggleMode={handleToggleMode} />
+          </BrowserRouter>
         </ErrorBoundary>
       </ThemeProvider>
+
     </Provider>
   );
 }

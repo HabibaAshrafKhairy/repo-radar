@@ -10,7 +10,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "peerDependencies": {
     "react": "^19.0.0"
@@ -20,7 +21,12 @@
     "react-redux": "^9.1.2"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.0.1",
     "@types/react": "^19.0.1",
-    "typescript": "^5.6.3"
+    "@types/react-dom": "^19.0.1",
+    "jsdom": "^25.0.1",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
   }
 }
