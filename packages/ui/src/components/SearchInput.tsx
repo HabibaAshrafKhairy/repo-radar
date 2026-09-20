@@ -1,4 +1,6 @@
+import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
+import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 
@@ -21,6 +23,13 @@ export function SearchInput({ value, onChange, placeholder = "Search GitHub repo
           startAdornment: (
             <InputAdornment position="start">
               <SearchIcon />
+            </InputAdornment>
+          ),
+          endAdornment: value && (
+            <InputAdornment position="end">
+              <IconButton size="small" aria-label="Clear search" onClick={() => onChange("")}>
+                <ClearIcon fontSize="small" />
+              </IconButton>
             </InputAdornment>
           ),
         },
