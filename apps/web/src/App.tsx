@@ -16,8 +16,8 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { SearchPage } from "./pages/SearchPage";
 
 // Lazy-loaded: this page pulls in @repo-radar/charts (MUI X Charts), the heaviest dependency in
-// the app, so keeping it out of the initial bundle means the Search route — what most sessions
-// start on — loads without paying for a chart library it doesn't use yet.
+// the app, so keeping it out of the initial bundle means the Search route (what most sessions
+// start on) loads without paying for a chart library it doesn't use yet.
 const TrackedReposPage = lazy(() =>
   import("./pages/TrackedReposPage").then((module) => ({ default: module.TrackedReposPage })),
 );
@@ -35,10 +35,14 @@ function NavTabs() {
   const navigate = useNavigate();
   const currentTab = location.pathname.startsWith("/tracked") ? "/tracked" : "/search";
 
+  function handleTabChange(next: string) {
+    navigate(`${next}${location.search}`);
+  }
+
   return (
     <Tabs
       value={currentTab}
-      onChange={(_event, next: string) => navigate(next)}
+      onChange={(_event, next: string) => handleTabChange(next)}
       textColor="primary"
       indicatorColor="primary"
       variant="scrollable"
@@ -52,13 +56,23 @@ function NavTabs() {
 }
 
 function AppContent({ mode, onToggleMode }: { mode: PaletteMode; onToggleMode: () => void }) {
+  
   return (
     <AppShell
       title="Repo Radar"
       subtitle="Search GitHub repositories, track your favorites, and watch their stats live."
       actions={
-        <Tooltip title={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}>
-          <IconButton onClick={onToggleMode} aria-label="Toggle dark mode">
+        <Tooltip
+          title={
+            mode === "light" ? "Switch to dark mode" : "Switch to light mode"
+          }
+        >
+          <IconButton
+            onClick={onToggleMode}
+            aria-label={
+              mode === "light" ? "Switch to dark mode" : "Switch to light mode"
+            }
+          >
             {mode === "light" ? <Brightness4Icon /> : <Brightness7Icon />}
           </IconButton>
         </Tooltip>
@@ -71,7 +85,13 @@ function AppContent({ mode, onToggleMode }: { mode: PaletteMode; onToggleMode: (
         <Route
           path="/tracked"
           element={
-            <Suspense fallback={<CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />}>
+            <Suspense
+              fallback={
+                <CircularProgress
+                  sx={{ display: "block", mx: "auto", mt: 4 }}
+                />
+              }
+            >
               <TrackedReposPage />
             </Suspense>
           }

@@ -12,7 +12,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/** Catches render-time errors anywhere below it so one broken component doesn't blank the whole app. */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
 

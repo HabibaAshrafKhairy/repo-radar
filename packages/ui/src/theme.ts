@@ -7,12 +7,11 @@ export function getTheme(mode: PaletteMode): Theme {
   const theme = createTheme({
     palette: {
       mode,
-      // A lighter tint in dark mode (not the same hex as light mode) is what keeps this
-      // legible against a dark background — reusing the light-mode shade is what made links
-      // hard to read in dark mode before.
       primary: { main: isLight ? "#2563eb" : "#60a5fa" },
       secondary: { main: isLight ? "#059669" : "#34d399" },
-      background: isLight ? { default: "#f8fafc", paper: "#ffffff" } : { default: "#0b0f19", paper: "#141a24" },
+      background: isLight
+        ? { default: "#f8fafc", paper: "#ffffff" }
+        : { default: "#0b0f19", paper: "#141a24" },
       divider: isLight ? "rgba(15, 23, 42, 0.1)" : "rgba(255, 255, 255, 0.12)",
     },
     shape: { borderRadius: 10 },
@@ -26,10 +25,14 @@ export function getTheme(mode: PaletteMode): Theme {
         styleOverrides: {
           root: {
             border: "1px solid",
-            borderColor: isLight ? "rgba(15, 23, 42, 0.08)" : "rgba(255, 255, 255, 0.12)",
+            borderColor: isLight
+              ? "rgba(15, 23, 42, 0.08)"
+              : "rgba(255, 255, 255, 0.12)",
             transition: "box-shadow 0.2s ease, transform 0.2s ease",
             "&:hover": {
-              boxShadow: isLight ? "0 8px 24px rgba(15, 23, 42, 0.08)" : "0 8px 24px rgba(0, 0, 0, 0.5)",
+              boxShadow: isLight
+                ? "0 8px 24px rgba(15, 23, 42, 0.08)"
+                : "0 8px 24px rgba(0, 0, 0, 0.5)",
             },
           },
         },
@@ -46,7 +49,10 @@ export function getTheme(mode: PaletteMode): Theme {
         styleOverrides: {
           root: { fontWeight: 500 },
           filled: ({ theme: t }) => ({
-            backgroundColor: alpha(t.palette.text.primary, isLight ? 0.05 : 0.08),
+            backgroundColor: alpha(
+              t.palette.text.primary,
+              isLight ? 0.05 : 0.08,
+            ),
           }),
         },
       },
@@ -55,10 +61,7 @@ export function getTheme(mode: PaletteMode): Theme {
           root: { borderRadius: 10 },
         },
       },
-      // MUI Stack defaults to margin-based spacing, which only works between siblings on a single
-      // line — once flexWrap kicks in (e.g. a chip row wrapping on mobile), the gap between wrapped
-      // rows comes out wrong/inconsistent. Real CSS `gap` (via useFlexGap) works correctly in both
-      // cases, so this is set globally rather than patched per-component.
+      // To fix gaps in mobile layouts
       MuiStack: {
         defaultProps: { useFlexGap: true },
       },

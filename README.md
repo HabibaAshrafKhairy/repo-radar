@@ -59,6 +59,7 @@ pnpm install
 cp apps/web/.env.example apps/web/.env
 # then edit apps/web/.env and set VITE_GITHUB_TOKEN to a GitHub personal access token
 # (no scopes/permissions needed — it's only used for read-only public data)
+# WARNING: VITE_GITHUB_TOKEN is exposed to browser and must not be treated as a secret. Use only a minimally privileged token, or omit it. A production implementation should proxy GitHub requests through a server-side function.
 
 pnpm dev       # starts the Vite dev server (apps/web) at http://localhost:5173
 ```
@@ -75,14 +76,12 @@ pnpm format      # prettier --write
 
 ## Testing
 
-`packages/core` has a Vitest suite (`pnpm --filter @repo-radar/core run test`, or `pnpm test` from the root) covering the state/data layer directly — the part of the codebase most of the real bugs during development turned up in:
+`packages/core` has a Vitest suite (`pnpm --filter @repo-radar/core run test`, or `pnpm test` from the root) covering the state/data layer directly:
 
 - `github/mappers.test.ts`, `github/errors.test.ts` — pure-function tests for GitHub response mapping and error-message formatting.
-- `store/trackedReposSlice.test.ts` — the track/untrack reducer, including the dedupe-on-track behavior.
+- `store/trackedReposSlice.test.ts` — the track/untrack reducer.
 - `hooks/useDebouncedValue.test.tsx` — confirms the timer actually resets per keystroke instead of firing once per change.
-- `hooks/useGitHubSearch.test.tsx` — a regression test (with a real Redux store + a controllable fake `fetch`) for the exact bug hit during development: a new search term's results must never show the *previous* term's data while its own request is still in flight.
-
-`packages/ui`, `packages/charts`, and `apps/web` don't have tests yet — a reasonable next step, not covered here.
+- `hooks/useGitHubSearch.test.tsx` — a regression test (with a real Redux store + a controllable fake `fetch`).
 
 ## Architecture & technical decisions
 
@@ -93,7 +92,7 @@ pnpm format      # prettier --write
 
 **Separation of concerns.** `packages/core` has no MUI/React-component dependency — it's pure state/data/types, importable by any UI. `packages/ui` has no knowledge of Redux — its components take data and callbacks as props (`RepoResultCard`, `AppShell`, `EmptyState`) or call `core`'s hooks directly where that's the more natural pattern (`TrackedRepoCard` calls `useGetRepoStatsQuery` itself, since "fetch and display this repo's stats" is really one concern, not two). `packages/charts` doesn't know what a "repo" is at all — it takes generic `{ id, label, value }` rows, so it isn't coupled to this domain.
 
-**Chart.** `@mui/x-charts` (MUI's own charting library) was used to match the "MUI" requirement. It's a horizontal bar chart (not vertical) specifically so long repository names get a full-width row instead of being rotated/clipped. Star counts across a user's tracked repos can vary by orders of magnitude, so exact values are shown via hover tooltip rather than printed on every bar (in-bar labels collide once bars get very short relative to the largest one). The chart caps to the top 10 repos by stars for readability once a lot of repos are tracked; all tracked repos remain visible as cards below regardless. The left margin is measured from the actual rendered tick-label width (`getBBox()`) rather than estimated from character count, so long repo names never render partially off-canvas.
+**Chart.** `@mui/x-charts` (MUI's own charting library) was used to match the "MUI" requirement. It's a horizontal bar chart (not vertical) specifically so long repository names get a full-width row instead of being rotated/clipped. Star counts across a user's tracked repos can vary by orders of magnitude, so exact values are shown via hover tooltip rather than printed on every bar (in-bar labels collide once bars get very short relative to the largest one). The chart caps to the top 10 repos by stars for readability once a lot of repos are tracked; The tracked repository filter applies consistently to both the repository cards and the stars chart. The left margin is measured from the actual rendered tick-label width (`getBBox()`) rather than estimated from character count, so long repo names never render partially off-canvas.
 
 **Routing & URL-synced state.** `/search` and `/tracked` are real routes (React Router's `BrowserRouter`/`Routes`), not just in-memory tab state — each is bookmarkable and browser back/forward works. On the Tracked Repos page, the filter text and sort key/direction live in the URL (via `useSearchParams`) instead of local component state, so a specific filtered/sorted view can be shared as a link or survive a refresh. `vercel.json`'s catch-all rewrite to `index.html` is what makes deep-linking directly to `/tracked?...` work in production.
 

@@ -112,10 +112,13 @@ export function TrackedReposPage() {
 
   const chartData = useMemo(
     () =>
-      trackedRepos
+      visibleRepos
         .filter((repo) => statsById[repo.id])
-        .map((repo) => ({ label: repo.fullName, value: statsById[repo.id]!.stargazersCount })),
-    [trackedRepos, statsById],
+        .map((repo) => ({
+          label: repo.fullName,
+          value: statsById[repo.id]!.stargazersCount,
+        })),
+    [visibleRepos, statsById],
   );
 
   if (trackedRepos.length === 0) {
@@ -136,28 +139,27 @@ export function TrackedReposPage() {
         alignItems={{ xs: "stretch", sm: "center" }}
         spacing={1.5}
       >
-        <Typography variant="h6">Tracked repositories ({trackedRepos.length})</Typography>
-        <Button variant="outlined" startIcon={<RefreshIcon />} onClick={handleRefreshAll}>
+        <Typography variant="h6">
+          Tracked repositories ({trackedRepos.length})
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<RefreshIcon />}
+          onClick={handleRefreshAll}
+        >
           Refresh all
         </Button>
       </Stack>
 
-      <Stack spacing={0.5}>
-        <Typography variant="subtitle2" color="text.secondary">
-          Stars per tracked repository (hover for the exact count
-          {chartData.length > CHART_MAX_ITEMS ? `, top ${CHART_MAX_ITEMS} shown` : ""})
-        </Typography>
-        <StarsBarChart
-          data={chartData}
-          maxItems={CHART_MAX_ITEMS}
-          color="#6366F1"
-          emptyFallback={<Typography color="text.secondary">Loading stats…</Typography>}
-        />
-      </Stack>
-
       <Paper
         variant="outlined"
-        sx={{ p: 1.5, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}
+        sx={{
+          p: 1.5,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 1.5,
+        }}
       >
         <TextField
           size="small"
@@ -166,7 +168,11 @@ export function TrackedReposPage() {
           onChange={(event) => updateParam("filter", event.target.value)}
           sx={{ minWidth: { xs: "100%", sm: 220 }, flex: { sm: "1 1 220px" } }}
         />
-        <Stack direction="row" spacing={1} sx={{ width: { xs: "100%", sm: "auto" } }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ width: { xs: "100%", sm: "auto" } }}
+        >
           <TextField
             size="small"
             select
@@ -183,15 +189,48 @@ export function TrackedReposPage() {
           </TextField>
           <Tooltip title={order === "asc" ? "Ascending" : "Descending"}>
             <IconButton
-              onClick={() => updateParam("order", order === "asc" ? "desc" : "asc")}
+              onClick={() =>
+                updateParam("order", order === "asc" ? "desc" : "asc")
+              }
               aria-label="Toggle sort direction"
-              sx={{ border: 1, borderColor: "divider", borderRadius: 1, width: 40, height: 40, flexShrink: 0 }}
+              sx={{
+                border: 1,
+                borderColor: "divider",
+                borderRadius: 1,
+                width: 40,
+                height: 40,
+                flexShrink: 0,
+              }}
             >
-              {order === "asc" ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+              {order === "asc" ? (
+                <ArrowUpwardIcon fontSize="small" />
+              ) : (
+                <ArrowDownwardIcon fontSize="small" />
+              )}
             </IconButton>
           </Tooltip>
         </Stack>
       </Paper>
+
+      {visibleRepos.length > 0 && (
+        <Stack spacing={0.5}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Stars per tracked repository (hover for the exact count
+            {chartData.length > CHART_MAX_ITEMS
+              ? `, top ${CHART_MAX_ITEMS} shown`
+              : ""}
+            )
+          </Typography>
+          <StarsBarChart
+            data={chartData}
+            maxItems={CHART_MAX_ITEMS}
+            color="#6366F1"
+            emptyFallback={
+              <Typography color="text.secondary">Loading stats…</Typography>
+            }
+          />
+        </Stack>
+      )}
 
       {visibleRepos.length === 0 ? (
         <EmptyState
@@ -202,7 +241,12 @@ export function TrackedReposPage() {
       ) : (
         <Stack spacing={2}>
           {visibleRepos.map((repo) => (
-            <TrackedRepoCard key={repo.id} repo={repo} onUntrack={handleUntrack} onStatsChange={handleStatsChange} />
+            <TrackedRepoCard
+              key={repo.id}
+              repo={repo}
+              onUntrack={handleUntrack}
+              onStatsChange={handleStatsChange}
+            />
           ))}
         </Stack>
       )}

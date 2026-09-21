@@ -4,7 +4,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import SearchOffRoundedIcon from "@mui/icons-material/SearchOffRounded";
 import TravelExploreRoundedIcon from "@mui/icons-material/TravelExploreRounded";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   track,
   untrack,
@@ -18,12 +19,31 @@ import { EmptyState, RepoResultCard, SearchInput } from "@repo-radar/ui";
 
 /** The "Search" tab: debounced GitHub search + track/untrack toggle on each result. */
 export function SearchPage() {
-  const [query, setQuery] = useState("");
-  const { results, isFetching, isError, error, isPending, hasMore, loadMore } = useGitHubSearch(query);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const query = searchParams.get("q") ?? "";
+
+  const { results, isFetching, isError, error, isPending, hasMore, loadMore } =
+    useGitHubSearch(query);
+
+  function handleQueryChange(nextQuery: string) {
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (nextQuery.trim().length === 0) {
+      nextParams.delete("q");
+    } else {
+      nextParams.set("q", nextQuery);
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  }
 
   const dispatch = useAppDispatch();
   const trackedRepos = useAppSelector(selectTrackedRepos);
-  const trackedIds = useMemo(() => new Set(trackedRepos.map((repo) => repo.id)), [trackedRepos]);
+  const trackedIds = useMemo(
+    () => new Set(trackedRepos.map((repo) => repo.id)),
+    [trackedRepos],
+  );
 
   function handleToggleTrack(repo: GitHubRepoSummary) {
     if (trackedIds.has(repo.id)) {
@@ -37,11 +57,17 @@ export function SearchPage() {
 
   return (
     <Stack spacing={2}>
-      <SearchInput value={query} onChange={setQuery} />
+      <SearchInput value={query} onChange={handleQueryChange} />
 
-      {isPending && <CircularProgress size={28} sx={{ alignSelf: "center" }} />}
+      {isPending && !isError && (
+        <CircularProgress size={28} sx={{ alignSelf: "center" }} />
+      )}
 
-      {isError && <Alert severity="error">{error}</Alert>}
+      {isError && (
+        <Alert severity="error">
+          {error ?? "Unable to search GitHub repositories."}
+        </Alert>
+      )}
 
       {trimmedQuery.length === 0 && (
         <EmptyState
@@ -51,13 +77,16 @@ export function SearchPage() {
         />
       )}
 
-      {!isPending && trimmedQuery.length > 0 && results.length === 0 && (
-        <EmptyState
-          icon={<SearchOffRoundedIcon sx={{ fontSize: 48 }} />}
-          title="No repositories found"
-          description="Try a different search term."
-        />
-      )}
+      {!isPending &&
+        !isError &&
+        trimmedQuery.length > 0 &&
+        results.length === 0 && (
+          <EmptyState
+            icon={<SearchOffRoundedIcon sx={{ fontSize: 48 }} />}
+            title="No repositories found"
+            description="Try a different search term."
+          />
+        )}
 
       <Stack spacing={1.5}>
         {results.map((repo) => (
@@ -71,7 +100,11 @@ export function SearchPage() {
       </Stack>
 
       {hasMore && (
-        <Button onClick={loadMore} disabled={isFetching} sx={{ alignSelf: "center" }}>
+        <Button
+          onClick={loadMore}
+          disabled={isFetching}
+          sx={{ alignSelf: "center" }}
+        >
           {isFetching ? "Loading…" : "Load more"}
         </Button>
       )}

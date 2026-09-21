@@ -11,15 +11,6 @@ export interface SearchRepositoriesArgs {
 }
 
 /**
- * The GitHub data layer, built with RTK Query.
- *
- * Each `builder.query` below becomes an auto-generated React hook (see the exports at the
- * bottom) that gives components `{ data, isLoading, isFetching, isError, error, refetch }`
- * for free — no manual `useState`/`useEffect`, no manual AbortController plumbing (RTK Query
- * passes us `signal` and aborts it automatically when the component unmounts or the argument
- * changes), and results are cached per-argument, so e.g. two tracked repos have fully
- * independent loading/error state.
- *
  * We don't use `fetchBaseQuery` (the usual "just hit this REST endpoint" helper) because
  * `github/api.ts` already has typed request/mapping/error logic we want to reuse as-is —
  * `queryFn` lets each endpoint just call that code directly.

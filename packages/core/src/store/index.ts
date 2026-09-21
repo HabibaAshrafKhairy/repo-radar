@@ -7,8 +7,9 @@ export const store = configureStore({
     trackedRepos: trackedReposReducer,
     [githubApi.reducerPath]: githubApi.reducer,
   },
-  // RTK Query's middleware powers caching, deduping, and refetch-on-focus/reconnect.
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(githubApi.middleware),
+  // RTK Query's middleware powers caching, and refetch-on-focus/reconnect.
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(githubApi.middleware),
 });
 
 if (typeof localStorage !== "undefined") {
